@@ -3,6 +3,7 @@
 html,
 body {
     margin: 0;
+    overflow-x: hidden;
 }
 
 .header {
@@ -63,7 +64,7 @@ body {
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
-    min-width: 1024px;
+    min-width: 100%;
 }
 
 .caption {
@@ -152,7 +153,7 @@ body {
 .timeline {
     width: 100%;
     max-width: 600px;
-    background: #ffe7dc;
+    background: #e0ffed;
     padding: 100px 50px;
     position: relative;
     box-shadow: 0.5rem 0.5rem 2rem 0 rgba(0, 0, 0, 0.2);
@@ -499,7 +500,7 @@ details>summary::-webkit-details-marker {
     }
 
     .nav-custom {
-        background: rgba(249, 229, 113, 0.9);
+        background: rgba(0, 0, 0, 0.9);
         height: 100%;
         width: 0;
         position: fixed;
@@ -537,7 +538,7 @@ details>summary::-webkit-details-marker {
         display: block;
         margin-bottom: 5px;
         padding: 5px;
-        color: #feffbc;
+        color: #ffffff;
     }
 
     .about-title {
@@ -653,11 +654,11 @@ details>summary::-webkit-details-marker {
 
 @media (max-width: 570px) {
     .header {
-        width: 85%;
+        width: 80%;
     }
 
     .hero {
-        background-image: url('');
+        background-image: url('./img/bg-big.png');
     }
 
     .sliderimg {

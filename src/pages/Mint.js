@@ -67,11 +67,11 @@ function Mint() {
 
             const _userNfts = await Promise.all(userTokens.map(async (nft) => {
                 const metadata = await axios.get(
-                    baseURI.replace("https://ipfs.io/ipfs/bafybeig32rjd4burz53ylsyy7laked6sdfkstwo2fsvdgdbx6ogvneaium/") + nft.toString() + baseExtension
+                    baseURI.replace("ipfs://", "https://ipfs.io/ipfs/") + "/" + nft.toString() + baseExtension
                 )
                 return {
                     id: nft,
-                    uri: metadata.data.image.replace("https://ipfs.io/ipfs/bafybeig32rjd4burz53ylsyy7laked6sdfkstwo2fsvdgdbx6ogvneaium/")
+                    uri: metadata.data.image.replace("ipfs://", "https://ipfs.io/ipfs/")
                 }
             }))
 
