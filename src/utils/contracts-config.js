@@ -1,7 +1,7 @@
 
-export const stakingContractAddress = "0xD2966c783eD369E2CBAd189C9eAa54C0d291a218"
-export const nftContractAddress = "0xA271575d1d2391A4b5Db9703Bc7815eaccA5FBA9"
-export const tokenContractAddress = "0xdD812DC299F6b0709845D438cC1579B224cfd16b"
+export const stakingContractAddress = "0x26C0726Cc07495859c544CdcC9998bbE0f85b94d"
+export const nftContractAddress = "0x9f2d12BBcF360A6195439476AB26ce4645252c95"
+export const tokenContractAddress = "0xe500F2CCCa2712374056033042Bdd3be5A81D6e8"
 export const ownerAddress = "0xA23dF46a1493dff5e325a3113229C70bd39dfEAD"
 export const networkDeployedTo = "8453"
   

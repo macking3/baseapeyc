@@ -1,48 +1,86 @@
-import React, { useState } from 'react'
-import "../assets/styles.css";
-import menu from "../assets/img/menu.png"
-import close from "../assets/img/cancel.png"
-import Connect from './Connect';
+import { Flex, Heading, Image, Button, Text, Menu,
+  MenuButton,
+  MenuList, IconButton, Box } from '@chakra-ui/react';
+import { FaBars } from 'react-icons/fa';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-function NavBar() {
-
-    const [isNavExpanded, setIsNavExpanded] = useState(false)
+const Navbar = () => {
 
     return (
-        <header className="header">
-            <div className="brand">
-                <a href="/" className="brand-logo">
-                    BaseApeYC 猿 俱乐部
-                </a>
-                <div className="nav-burger" id="nav-burger">
-                    <img src={menu} alt="Menu" onClick={() => {
-                        setIsNavExpanded(true);
-                    }} />
-                </div>
-            </div>
-            <nav className={isNavExpanded ? "nav-custom open-menu" : "nav-custom is-active"} >
-                <div className={isNavExpanded ? "nav-cancel" : "nav-cancel is-active"}>
-                    <img src={close} onClick={() => {
-                        setIsNavExpanded(false);
-                    }} alt="Cancel" />
-                </div>
-                <div className='nav-links_div'>
-                    <a href="/" className="nav-link_ref">Home</a>
-                    <a href="/mint" className="nav-link_ref">Mint</a>
-                    <a href="/#about" className="nav-link_ref">About</a>
-                    <a href="/#roadmap" className="nav-link_ref">Roadmap</a>
-                    <Connect />
-                </div>
-            </nav>
-        </header>
+        <Flex justify="space-between" align="center" mb="60px" py="25px"position="sticky" top="0" bg="secondary.900" zIndex="sticky" boxShadow="dark-lg">
+        <Heading bgGradient='linear(to-r, primary.500, primary.800)' bgClip='text' size={{base: 'md', md: "xl"}}>
+            BaseApeYatchClub猿 俱乐部 ..
+        </Heading>
+
+        <Flex gap="20px" wrap="wrap" display={{base: 'none', lg: 'flex'}}>
+
+            <Link to="/">
+                <Text fontSize="25px" color="blue.300" _hover={{color: 'primary.500'}}>
+                  Mint
+                </Text>
+              </Link> 
+
+              <Link to="/staking">
+                <Text fontSize="25px" color="blue.300" _hover={{color: 'primary.500'}}>
+                  Staking
+                </Text>
+              </Link>
+
+              <a href='https://baseapeyc.deform.cc/airdrop/'>
+                  <Text fontSize="25px" color="blue.300" _hover={{color: 'primary.500'}}>
+                    Airdrop
+                 </Text>
+              </a>
+               {/* <Link to="">
+                
+              </Link> */}
+              
+        </Flex>
+
+      <Box display={{base: 'none', lg: 'block'}}> 
+              <ConnectButton />
+      </Box>
+
+        <Box display={{base: 'block', lg: 'none'}}>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              aria-label='Options'
+              icon={<FaBars />}
+              colorScheme="blue"
+            />
+            <MenuList bg="secondary.700" >
+
+                <Link to="/">
+                  <Text fontSize="25px" color="white" _hover={{bg: 'primary.500'}} px="15px">
+                    Mint
+                  </Text>
+                </Link>
+
+
+                <Link to="/staking">
+                  <Text fontSize="25px" color="white" _hover={{bg: 'primary.500'}} px="15px">
+                    Staking
+                  </Text>
+                </Link>
+
+                <a href='https://baseapeyc.deform.cc/airdrop/'>
+                  <Text fontSize="25px" color="blue.300" _hover={{color: 'primary.500'}}>
+                    Airdrop
+                 </Text>
+              </a>
+
+             <ConnectButton />
+
+                
+            </MenuList>
+          </Menu>
+        </Box>
+    </Flex>
     );
-}
+};
 
-
-export default NavBar
-
-
-
-
-
+export default Navbar;

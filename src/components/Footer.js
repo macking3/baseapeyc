@@ -1,24 +1,21 @@
-import React from 'react'
-import { AiOutlineTwitter, AiOutlineScan } from "react-icons/ai";
-import { RiDiscordFill } from "react-icons/ri";
+import { Box, Flex, Link, Text } from '@chakra-ui/react';
+import React from 'react';
+import { GrTwitter, GrDesktop } from 'react-icons/gr';
 
-function Footer() {
+
+const Footer = () => {
     return (
-        <div className='footer container'>
-            <p>BaseApeYC&#169; All Right Reserved</p>
-            <div className='social'>
-                <a href='https://opensea.io/collection/baseapeyc-collectible' >
-                    <AiOutlineScan size={24} color="#000" />
-                </a>
-                <a href='https://twitter.com/BaseApeYatclub' >
-                    <AiOutlineTwitter size={24} color="#000" />
-                </a>
-                <a href='https://discord.gg/BaseApeYC' >
-                    <RiDiscordFill size={24} color="#000" />
-                </a>
-            </div>
-        </div>
-    )
-}
+        <footer>
+            <Flex my="50px"  align="center" justify="center" fontSize="25px" gap="5px" >
+                <Box color="twitter.600" mt="2px"><GrTwitter/></Box>
+                <Link color="white" href='https://twitter.com/BaseApeYatclub' target={'_blank'}>Twitter</Link>
+            </Flex>
+              <Flex my="50px"  align="center" justify="center" fontSize="25px" gap="5px" >
+                <Box color="discord.600" mt="2px"><GrDesktop/></Box>
+                <Link color="white" href='https://discord.gg/tmBfEZwY' target={'_blank'}>Discord</Link>
+            </Flex>
+        </footer>
+    );
+};
 
-export default Footer
+export default Footer;

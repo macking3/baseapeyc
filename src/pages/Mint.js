@@ -1,334 +1,202 @@
+import { Box, Button, Card, CardBody, CardFooter, CardHeader, Flex, Grid, Heading, HStack, Image, Input, Link, Progress, Stack, Text, useNumberInput } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
-import "../assets/styles.css";
-import image1 from "../assets/img/mint-punk.png";
-import NavBar from '../components/NavBar';
-import Footer from '../components/Footer';
-import { useSelector } from "react-redux";
-import { ethers } from "ethers";
-import axios from "axios"
-import { Table } from "react-bootstrap";
-import { CircularProgress } from "@mui/material"
+import img from '../Images/56.png';
 
-import stakingContract from "../artifacts/NFTStakingVault.sol/NFTStakingVault.json";
-import nftContract from "../artifacts/BaseApeYC.sol/BaseApeYC.json";
-import { stakingContractAddress, nftContractAddress, ownerAddress, networkDeployedTo } from "../utils/contracts-config";
-import networksMap from "../utils/networksMap.json";
+import { useAccount } from 'wagmi';
 
-function Mint() {
-    const data = useSelector((state) => state.blockchain.value)
- 
-    const [mintAmount, setMintAmount] = useState(1)
-    const [userNfts, setUserNfts] = useState([])
-    const [info, setInfo] = useState({
-        currentSupply: 0,
-        maxSupply: 0,
-        maxMintAmountPerTx: 10,
-        mintCost: 0,
-        paused: 1,
-        userNftIds: [],
-        stakedNftIds: [],
-        totalReward: 0
+import { ethers } from 'ethers';
+import nftContract from '../artifacts/contracts/BaseApeNFT.sol/BaseApeNFT.json';
+import { nftContractAddress } from "../utils/contracts-config";
+
+
+const Mint = () => {
+
+    const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
+    useNumberInput({
+        step: 1,
+        defaultValue: 1,
+        min: 1,
+        max: 10,
+        precision: 0,
     })
-    const [loading, setLoading] = useState(false)
+  const inc = getIncrementButtonProps()
+  const dec = getDecrementButtonProps()
+  const input = getInputProps()
+  const value = input.value;
+//   console.log(value);
 
-    const getInfo = async () => {
-        if (data.network === networksMap[networkDeployedTo]) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-            const nft_contract = new ethers.Contract(nftContractAddress, nftContract.abi, provider);
-            const staking_contract = new ethers.Contract(stakingContractAddress, stakingContract.abi, provider);
+  const { address, isConnecting, isDisconnected} = useAccount();
 
-            const signer = provider.getSigner()
-            const user = await signer.getAddress()
+  const [data, setData] = useState({});
+  const [owner, setOwner] = useState(false);
 
-            const stakedTokens = Array.from((await staking_contract.tokensOfOwner(user)), x => Number(x))
-            const reward = await staking_contract.getTotalRewardEarned(user)
+  useEffect(() => {
+    getContractOwner();
+    fetchData();
+  }, [address])
 
-            const paused = await nft_contract.paused()
-            var userTokens = Array.from((await nft_contract.tokensOfOwner(user)), x => Number(x))
-            const maxMintAmountPerTx = await nft_contract.maxMintAmountPerTx()
-            const cost = await nft_contract.cost()
-            const baseURI = await nft_contract.baseURI()
-            const baseExtension = await nft_contract.baseExtension()
-            const totalSupply = await nft_contract.totalSupply()
-            const maxSupply = await nft_contract.maxSupply()
-
-            userTokens = userTokens.concat(stakedTokens).sort()
-
-            setInfo({
-                currentSupply: Number(totalSupply),
-                maxSupply: Number(maxSupply),
-                maxMintAmountPerTx: Number(maxMintAmountPerTx),
-                mintCost: Number(ethers.utils.formatUnits(cost, "ether")),
-                paused: Number(paused),
-                userNftIds: userTokens,
-                stakedNftIds: stakedTokens,
-                totalReward: Number(ethers.utils.formatUnits(reward, "ether"))
-            })
-
-            const _userNfts = await Promise.all(userTokens.map(async (nft) => {
-                const metadata = await axios.get(
-                    baseURI.replace("ipfs://", "https://ipfs.io/ipfs/") + "/" + nft.toString() + baseExtension
-                )
-                return {
-                    id: nft,
-                    uri: metadata.data.image.replace("ipfs://", "https://ipfs.io/ipfs/")
-                }
-            }))
-
-            setUserNfts(_userNfts)
-        }
+  async function getContractOwner() {
+    if(typeof window.ethereum !== 'undefined') {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const contract = new ethers.Contract(nftContractAddress, nftContract.abi, provider);
+      try {
+       if(address) {
+          const owner = await contract.owner();
+          if(owner.toLowerCase() === address.toLowerCase()) {
+            setOwner(true);
+          } else {
+            setOwner(false);
+          }
+       }
+      }
+      catch (err) {
+        console.log(err.message);
+      }
     }
+  }
 
-    const mint = async () => {
-        if (data.network === networksMap[networkDeployedTo] && info.paused == 2) {
-            try {
-                setLoading(true)
-                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-                const signer = provider.getSigner()
-                const nft_contract = new ethers.Contract(nftContractAddress, nftContract.abi, signer);
-                if (data.account === ownerAddress) {
-                    const mint_tx = await nft_contract.mint(mintAmount)
-                    await mint_tx.wait()
-                } else {
-                    const totalMintCost = ethers.utils.parseEther(String(info.mintCost * mintAmount), "ether")
-                    const mint_tx = await nft_contract.mint(mintAmount, { value: totalMintCost })
-                    await mint_tx.wait()
-                }
-                setLoading(false)
-                getInfo()
-            } catch (error) {
-                setLoading(false)
-                window.alert("An error has occured, Please Try Again")
-                console.log(error)
-            }
-        }
+  async function fetchData() {
+    if(typeof window.ethereum !== 'undefined') {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const contract = new ethers.Contract(nftContractAddress, nftContract.abi, provider);
+      try {
+        const mintPrice = await contract.mintPrice();
+        const totalSupply = await contract.totalSupply();
+        const object = {"price": String(mintPrice), "totalSupply": String(totalSupply)};
+        setData(object);
+      }
+      catch (err) {
+        console.log(err.message);
+      }
     }
+  }
+  
 
-    const stakeItem = async (id) => {
-        console.log([id])
-        if (data.network === networksMap[networkDeployedTo]) {
-            console.log([id])
-            try {
-                setLoading(true)
-                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-                const signer = provider.getSigner()
-                const nft_contract = new ethers.Contract(nftContractAddress, nftContract.abi, signer);
-                const staking_contract = new ethers.Contract(stakingContractAddress, stakingContract.abi, signer);
-
-                const approve_tx = await nft_contract.approve(stakingContractAddress, id)
-                await approve_tx.wait()
-
-                console.log([id])
-                const stake_tx = await staking_contract.stake([id])
-                await stake_tx.wait()
-
-                setLoading(false)
-                getInfo()
-            } catch (error) {
-                setLoading(false)
-                window.alert("An error has occured, Please Try Again")
-                console.log(error)
-            }
+  async function mint() {
+    if(typeof window.ethereum !== 'undefined') {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(nftContractAddress, nftContract.abi, signer);
+      try {
+        let overrides = {
+          from: address,
+          value: (data.price * value).toString()
         }
+        const transaction = await contract.publicSaleMint(address, value, overrides);
+        await transaction.wait();
+        fetchData();
+      }
+      catch (err) {
+        console.log(err.message);
+        console.log(err.message);
+      }
     }
+  }
 
-    const unstakeItem = async (id) => {
-        if (data.network === networksMap[networkDeployedTo]) {
-            try {
-                setLoading(true)
-                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-                const signer = provider.getSigner()
-                const staking_contract = new ethers.Contract(stakingContractAddress, stakingContract.abi, signer);
-
-                const unstake_tx = await staking_contract.unstake([id])
-                await unstake_tx.wait()
-
-                setLoading(false)
-                getInfo()
-            } catch (error) {
-                setLoading(false)
-                window.alert("An error has occured, Please Try Again")
-                console.log(error)
-            }
-        }
+  async function withdraw() {
+    if(typeof window.ethereum !== 'undefined') {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(nftContractAddress, nftContract.abi, signer);
+      try {
+        const transaction = await contract.releaseAll();
+        await transaction.wait();
+      }
+      catch (err) {
+        console.log(err.message);
+      }
     }
+  }
 
-    const unstakeAll = async () => {
-        if (data.network === networksMap[networkDeployedTo]) {
-            try {
-                setLoading(true)
-                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-                const signer = provider.getSigner()
-                const staking_contract = new ethers.Contract(stakingContractAddress, stakingContract.abi, signer);
-
-                const unstake_tx = await staking_contract.unstake(info.stakedNftIds)
-                await unstake_tx.wait()
-
-                setLoading(false)
-                getInfo()
-            } catch (error) {
-                setLoading(false)
-                window.alert("An error has occured, Please Try Again")
-                console.log(error)
-            }
-        }
-    }
-
-    const claim = async () => {
-        if (data.network === networksMap[networkDeployedTo]) {
-            try {
-                setLoading(true)
-                const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-                const signer = provider.getSigner()
-                const staking_contract = new ethers.Contract(stakingContractAddress, stakingContract.abi, signer);
-
-                const claim_tx = await staking_contract.claim(info.stakedNftIds)
-                await claim_tx.wait()
-
-                setLoading(false)
-                getInfo()
-            } catch (error) {
-                setLoading(false)
-                window.alert("An error has occured, Please Try Again")
-                console.log(error)
-            }
-        }
-    }
-
-    useEffect(() => {
-        getInfo()
-    }, [data.account])
 
     return (
-        <section>
-            <NavBar />
-            <br />
-            <section className="claim" id="claim">
-                <div className="roadmap-container"  >
-                    <div className='info-container'>
-                        <h3 className='text-center p-2'>Minting Info</h3>
-                        <Table responsive>
-                            <tbody>
-                                <tr>
-                                    <td className='p-2'>Total Collection Supply</td>
-                                    <td>{info.maxSupply}</td>
-                                </tr>
-                                <tr>
-                                    <td className='p-2'>Minted NFT Count</td>
-                                    <td>{info.currentSupply}</td>
-                                </tr>
-                                <tr>
-                                    <td className='p-2'>Mint Cost</td>
-                                    <td>{info.mintCost} ETH</td>
-                                </tr>
-                                <tr>
-                                    <td className='p-2'>Max Mint Amount Per TX </td>
-                                    <td>{info.maxMintAmountPerTx} </td>
-                                </tr>
-                            </tbody>
-                        </Table >
-                    </div>
-                    <div className='info-container'>
-                        <h3 className='text-center p-2'>Staking Info</h3>
-                        <Table responsive>
-                            <tbody>
-                                <tr>
-                                    <td className='p-2'>Your BaseApeYC</td>
-                                    <td>[{info.userNftIds.join(" ")}]</td>
-                                </tr>
-                                <tr>
-                                    <td className='p-2'>NFT Count</td>
-                                    <td>{info.userNftIds.length}</td>
-                                </tr>
-                                <tr>
-                                    <td className='p-2'>NFT Staked</td>
-                                    <td>[{info.stakedNftIds.join(" ")}]</td>
-                                </tr>
-                                <tr>
-                                    <td className='p-2'>Earned Reward($BAY)</td>
-                                    <td>
-                                        {info.totalReward !== 0 ?
-                                            parseFloat(info.totalReward).toFixed(6) : 0
-                                        }
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </Table >
-                        <div style={{ textAlign: "center" }} >
-                            <button className="btn btn-info m-3" src="" onClick={claim}>
-                                {loading ? <CircularProgress color="inherit" size={18} /> : "Claim"}
-                            </button>
-                            <button className="btn btn-info m-3" src="" onClick={unstakeAll}>
-                                {loading ? <CircularProgress color="inherit" size={18} /> : "Unstake All"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div className="roadmap-container" >
-                    <div className='mint-container'>
-                        <div className="row" style={{ justifyContent: "center" }}>
-                            <div className="col-md-7">
-                                <div className="text-center">
-                                    <h2 className="minttitle title">
-                                        Claim Your BaseApeYC
-                                    </h2>
-                                    <img src={image1} className="mint-img" alt="" />
-                                    <p className="lead" style={{ marginBottom: "30px" }}>The BaseApeYC are the first Cultural royalties apes within the Base network, a BaseApeYC is a character that is part of an 10000 algorithmically generated collection consisting of extremely unique features. Each item can be staked on the BaseApeYC vault to receive $BAY Token rewards</p>
-                                    <div className="form-group" >
-                                        <div className="d-flex justify-content-center">
-                                            <button type="button"
-                                                className="minus btn btn-info rounded-circle"
-                                                disabled={mintAmount === 1}
-                                                onClick={() => { setMintAmount(mintAmount - 1) }}>-</button>
-                                            <input type="number" className="mintnum text-center" readOnly value={mintAmount} />
-                                            <button type="button"
-                                                className="plus btn btn-info rounded-circle"
-                                                disabled={mintAmount === info.maxMintAmountPerTx}
-                                                onClick={() => { setMintAmount(mintAmount + 1) }}>+</button>
-                                        </div>
-                                        <div>
-                                            <button className="btn btn-info mt-3" onClick={mint}>
-                                                {loading ? <CircularProgress color="inherit" size={18} /> : "MINT"}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section className='my-items'>
-                {userNfts.length !== 0 ? (
-                    <>
-                        <h2 className="minttitle title text-center">My NFT</h2>
-                        <div className='items container'>
-                            {userNfts.map((nft, index) => {
-                                return (
-                                    <div className='item-box' key={index}>
-                                        <img src={nft.uri} className="item-img" />
-                                        <div className='text-center'>
-                                            {info.stakedNftIds.includes(nft.id) ? (
-                                                <button className="btn btn-info m-3" role="button" onClick={() => { unstakeItem(nft.id) }}>
-                                                    {loading ? <CircularProgress color="inherit" size={18} /> : "UNSTAKE"}
-                                                </button>
-                                            ) : (
-                                                <button className="btn btn-info m-3" role="button"
-                                                    onClick={() => { stakeItem(nft.id) }}>
-                                                    {loading ? <CircularProgress color="inherit" size={18} /> : "STAKE"}
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </>
-                ) : null}
-            </section>
-            <Footer />
-        </section>
-    )
-}
+        <Box  mb="100px">
+
+            <Grid templateColumns={{base: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'}} gap="60px">
+                <Stack order={{base: '2', md:'1'}} spacing="25px" >
+                    <Text color="white" fontSize="5xl" fontWeight="bold">
+                        BaseApeNFT NFT 猿
+                    </Text>
+
+                    <Flex justify="space-between" align="center">
+                        <Text fontSize="18px" color="primary.600">
+                            TOTAL NFTs: <span style={{fontWeight: 'bold', color: 'white'}}>10000</span>
+                        </Text>
+
+                        <Text fontSize="18px" color="primary.600">
+                            Mint PRICE: <span style={{fontWeight: 'bold', color: 'white'}}>0.002 ETH</span>
+                        </Text>
+
+                    </Flex>
+
+                    <Flex justify="space-between" align="center" wrap='wrap' gap="15px">
+                    <Text>
+                        Network: <span>Base</span>
+                    </Text>
+
+                    <Link href='https://baseapeyc.deform.cc/airdrop' _hover={{textDecoration: 'none'}} target="_blank">
+                        <Button colorScheme="cyan">
+                            Claim Airdrop
+                        </Button>
+                    </Link>
+
+                    </Flex>
+
+                    <Text>
+                        The BaseApeNFT are the first Cultural utility apes within the Base network, BaseApeNFT is a character of 10000 algorithmically generated collection. Each item can be staked on the BaseApeNFT vault to receive $BAY Token rewards.
+                        
+                    </Text>
+
+                    <Link href='https://opensea.io/collection/baseapeyc-collectible' _hover={{textDecoration: 'none'}} target="_blank">
+                        <Button colorScheme="facebook" w="100%">
+                            View on Opensea
+                        </Button>
+                    </Link>
+
+                    { owner && (
+                        <>
+                            <Button onClick={withdraw}>withdraw</Button>
+                        </>
+                    )
+                    }
+
+                </Stack>
+
+                <Stack order={{base: '1', md:'2'}} spacing="25px">
+                    <Flex justify="center">
+                      <Image src={img} alt="nftImage"borderRadius="md" w={{base: 'auto', lg: "300px"}} h="300px" objectFit="contain"/>
+                    </Flex>
+
+                    <Box>
+                        <Flex justify="space-between" fontSize="17px">
+                            <span>Total minted</span>
+                            <Text><span style={{color: 'white', fontWeight: 'bold'}}>{((data.totalSupply/10000)*100).toFixed(0)}%</span> ({data.totalSupply}/10000)</Text>
+                        </Flex>
+                        <Box mt="5px">
+                            <Progress bg="secondary.800" size="md" value={((data.totalSupply/10000)*100).toFixed(0)} colorScheme="pink" borderRadius="full"/>
+                        </Box>
+                    </Box>
+
+                    <Card bg="secondary.700" color="white">
+                        <CardHeader fontSize="18px" display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap="15px">
+                        <Text >
+                            Price: <span style={{fontWeight: 'bold'}}>0.002 ETH</span>
+                        </Text>
+                        <HStack maxW='320px'>
+                            <Button {...dec} colorScheme="cyan">-</Button>
+                            <Input {...input}/>
+                            <Button {...inc} colorScheme="cyan">+</Button>
+                        </HStack>
+                        </CardHeader>
+
+                        <CardBody>
+                            <Button w="100%" colorScheme="pink" onClick={mint} disabled={isDisconnected && true}>Mint {value}</Button>
+                        </CardBody>
+                    </Card>
+                </Stack>
+            </Grid>
+        </Box>
+    );
+};
 
 export default Mint;
