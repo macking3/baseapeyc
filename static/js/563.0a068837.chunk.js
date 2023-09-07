@@ -1,0 +1,1 @@
+(self.webpackChunkmintpage=self.webpackChunkmintpage||[]).push([[563],{36563:function(){}}]);
