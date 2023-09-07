@@ -26,7 +26,7 @@ module.exports = {
   networks: {
     base: {
       url: 'https://developer-access-mainnet.base.org',
-      accounts: ['2189aa89efb706207d21d00972636db9c92ffc46839aa86bf1aca2c1e9e8690d'],
+      accounts: [''],
       verify: {
          etherscan: {
            apiKey: {
