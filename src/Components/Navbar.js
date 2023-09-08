@@ -29,7 +29,7 @@ const Navbar = () => {
                 </Text>
               </Link>
 
-              <a href='https://baseapeyc.deform.cc/airdrop/'>
+              <a href='/airdrop'>
                   <Text fontSize="25px" color="blue.300" _hover={{color: 'primary.500'}}>
                     Airdrop
                  </Text>
@@ -67,7 +67,7 @@ const Navbar = () => {
                   </Text>
                 </Link>
 
-                <a href='https://baseapeyc.deform.cc/airdrop/'>
+                <a href='/airdrop'>
                   <Text fontSize="25px" color="blue.300" _hover={{color: 'primary.500'}}>
                      Airdrop
                  </Text>

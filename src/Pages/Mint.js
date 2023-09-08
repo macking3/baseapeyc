@@ -134,7 +134,7 @@ const Mint = () => {
                         Network: <span>Base</span>
                     </Text>
 
-                    <Link href='https://baseapeyc.deform.cc/airdrop' _hover={{textDecoration: 'none'}} target="_blank">
+                    <Link href='/airdrop' _hover={{textDecoration: 'none'}} target="_blank">
                         <Button colorScheme="cyan">
                             Claim Airdrop
                         </Button>

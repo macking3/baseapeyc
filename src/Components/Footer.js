@@ -14,6 +14,7 @@ const Footer = () => {
                 <Box color="discord.600" mt="2px"><GrDesktop/></Box>
                 <Link color="white" href='https://discord.gg/tmBfEZwY' target={'_blank'}>Discord</Link>
             </Flex>
+            
         </footer>
     );
 };

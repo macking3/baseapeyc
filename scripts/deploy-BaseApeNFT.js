@@ -4,7 +4,7 @@ const hre = require("hardhat");
 async function main() {
   
   const BaseApeNFT = await hre.ethers.getContractFactory("BaseApeNFT");
-  const baseapenft = await BaseApeNFT.deploy(["0xA23dF46a1493dff5e325a3113229C70bd39dfEAD"], [100], "ipfs/bafybeig32rjd4burz53ylsyy7laked6sdfkstwo2fsvdgdbx6ogvneaium/");
+  const baseapenft = await BaseApeNFT.deploy(["0x664e4874340FcFe704df0205C6c3177cf15E7f53"], [100], "ipfs/bafybeig32rjd4burz53ylsyy7laked6sdfkstwo2fsvdgdbx6ogvneaium/");
 
   await baseapenft.deployed();
 

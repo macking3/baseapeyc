@@ -8,6 +8,7 @@ import { BrowserRouter, Routes,  Route } from 'react-router-dom';
 
 import Mint from 'Pages/Mint';
 import Staking from 'Pages/Staking';
+import Airdrop from 'Pages/Airdrop';
 import 'Styles/Home.css';
 import Navbar from 'Components/Navbar';
 import Footer from 'Components/Footer';
@@ -124,6 +125,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Mint />}/>
                     <Route path="/staking" element={<Staking />}/>
+                    <Route path="/airdrop" element={<Airdrop />}/>
                   </Routes>
                   <Footer/>
                 </Box>
