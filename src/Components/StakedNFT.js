@@ -8,7 +8,7 @@ import BaycStaking from '../artifacts/contracts/BaycStaking.sol/BaycStaking.json
 
 const stakingContractAddress = '0xc9ddE63BCd4242c05e17e7d6662eB86b682ad751';
 
-const nftpng = "https://ipfs.io/ipfs/bafybeig32rjd4burz53ylsyy7laked6sdfkstwo2fsvdgdbx6ogvneaium/";
+const nftpng = "https://ipfs.io/ipfs/bafybeiesmgq2yjsqpkcltmm3ffm32z45ruwrprfbqrr27kczpkmoegc4ua/";
 
 const StakedNFT = ({ownerTokenStakedId}) => {
     
